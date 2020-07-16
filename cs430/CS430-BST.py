@@ -1,115 +1,74 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
-from collections import namedtuple
-from io import StringIO
-import math
-
-# define the node structure
-Node = namedtuple('Node', ['data', 'left', 'right'])
-# initialize the tree
-tree = Node(1,Node(2,None,None),None)
+import networkx as nx
+import matplotlib.pyplot as plt
+from collections import Iterable
 
 
-class Queue(object):
-    def __init__(self):
-        self.queue = []
+class Node:
+    
+    def __init__(self, value, left=None, right=None):
+        self.value = value   # 节点的值
+        self.left = left     # 左子节点
+        self.right = right   # 右子节点
 
-    def enqueue(self, b):
-        self.queue.insert(0, b)
+class BinaryTree:
 
-    def dequeue(self):
-        return self.queue.pop()
+    def __init__(self, seq=()):
+        assert isinstance(seq, Iterable)  # 确保输入的参数为可迭代对象
+        self.root = None 
 
-    def isEmpty(self):
-        return self.queue == []
+    def insert(self, *args):
+        if not args:
+            return
+        if not self.root:
+            self.root = Node(args[0])
+            args = args[1:]
+        for i in args:
+            seed = self.root
+            while True:
+                if i > seed.value:
+                    if not seed.right:
+                        node = Node(i)
+                        seed.right = node
+                        break
+                    else:
+                        seed = seed.right
+                else:
+                    if not seed.left:
+                        node = Node(i)
+                        seed.left = node
+                        break
+                    else:
+                        seed=seed.left
 
+    def inorder_tree-walk(x):
+        pass
+def create_graph(G, node, pos={}, x=0, y=0, layer=1):
+    pos[node.value] = (x, y)
 
-def getheight(node):
-    if not node:
-        return 0
-    else:
-        return max(getheight(node.left), getheight(node.right)) + 1
+    if node.left:
+        G.add_edge(node.value, node.left.value)
+        l_x, l_y = x - 1 / 2 ** layer, y - 1
+        l_layer = layer + 1
+        create_graph(G, node.left, x=l_x, y=l_y, pos=pos, layer=l_layer)
+    if node.right:
+        G.add_edge(node.value, node.right.value)
+        r_x, r_y = x + 1 / 2 ** layer, y - 1
+        r_layer = layer + 1
+        create_graph(G, node.right, x=r_x, y=r_y, pos=pos, layer=r_layer)
+    return (G, pos)
 
-def add_padding(str, pad_length_value):
-    str = str.strip()
-    return str.center(pad_length_value, ' ')
-
-# sotre node , space and slashes in list first, then print out
-def pretty_print(tree):
-    output = StringIO()
-    pretty_output = StringIO()
-
-    current_level = Queue()
-    next_level = Queue()
-    current_level.enqueue(tree)
-    depth = 0
-
-    # get the depth of current tree
-    # get the tree node data and store in list
-    if tree:
-        while not current_level.isEmpty():
-            current_node = current_level.dequeue()
-            output.write('%s ' % current_node.data if current_node else 'N ')
-            next_level.enqueue(
-                current_node.left if current_node else current_node)
-            next_level.enqueue(
-                current_node.right if current_node else current_node)
-
-            if current_level.isEmpty():
-                if sum([i is not None for i in next_level.queue]
-                       ):  # if next level has node
-                    current_level, next_level = next_level, current_level
-                    depth = depth + 1
-                output.write('\n')
-    print('the tree print level by level is :')
-    print(output.getvalue())
-    print("current tree's depth is %i" % (depth+1))
-
-    # add space to each node
-    output.seek(0)
-    pad_length = 3
-    keys = []
-    spaces = int(math.pow(2, depth))
-
-    while spaces > 0:
-        skip_start = spaces * pad_length
-        skip_mid = (2 * spaces - 1) * pad_length
-
-        key_start_spacing = ' ' * skip_start
-        key_mid_spacing = ' ' * skip_mid
-
-        keys = output.readline().split(' ')  # read one level to parse
-        padded_keys = (add_padding(key, pad_length) for key in keys)
-        padded_str = key_mid_spacing.join(padded_keys)
-        complete_str = ''.join([key_start_spacing, padded_str])
-
-        pretty_output.write(complete_str)
-
-        # add space and slashes to middle layer
-        slashes_depth = spaces
-        print('current slashes depth im_resize:')
-        print(spaces)
-        print("current levle's list is:")
-        print(keys)
-        spaces = spaces // 2
-        if spaces > 0:
-            pretty_output.write('\n')  # print '\n' each level
-
-            cnt = 0
-            while cnt < slashes_depth:
-                inter_symbol_spacing = ' ' * (pad_length + 2 * cnt)
-                symbol = ''.join(['/', inter_symbol_spacing, '\\'])
-                symbol_start_spacing = ' ' * (skip_start-cnt-1)
-                symbol_mid_spacing = ' ' * (skip_mid-2*(cnt+1))
-                pretty_output.write(''.join([symbol_start_spacing, symbol]))
-                for i in keys[1:-1]:
-                    pretty_output.write(''.join([symbol_mid_spacing, symbol]))
-                pretty_output.write('\n')
-                cnt = cnt + 1
-
-    print(pretty_output.getvalue())
+def draw(node):   # 以某个节点为根画图
+    graph = nx.DiGraph()
+    graph, pos = create_graph(graph, node)
+    fig, ax = plt.subplots(figsize=(8, 10))  # 比例可以根据树的深度适当调节
+    nx.draw_networkx(graph, pos, ax=ax, node_size=300)
+    plt.show()
 
 
 if __name__ == '__main__':
-    pretty_print(tree)
+    l=[40,20,30,50,13,23]
+    tree=BinaryTree(l)
+    tree.insert(*l)
+    draw(tree.root)
