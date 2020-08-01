@@ -11,39 +11,33 @@ class Node:
         self.value = value   # 节点的值
         self.left = left     # 左子节点
         self.right = right   # 右子节点
-
 class BinaryTree:
 
-    def __init__(self, seq=()):
-        assert isinstance(seq, Iterable)  # 确保输入的参数为可迭代对象
-        self.root = None 
+    def __init__(self, root=None):
+       
+        self.root =root
 
-    def insert(self, *args):
-        if not args:
-            return
-        if not self.root:
-            self.root = Node(args[0])
-            args = args[1:]
-        for i in args:
-            seed = self.root
-            while True:
-                if i > seed.value:
-                    if not seed.right:
-                        node = Node(i)
-                        seed.right = node
-                        break
-                    else:
-                        seed = seed.right
-                else:
-                    if not seed.left:
-                        node = Node(i)
-                        seed.left = node
-                        break
-                    else:
-                        seed=seed.left
+    def insert(self,z):
+        y=None
+        x=self.root
+        
+        while x!=None:
+    
+            y=x
+            if z.value<x.value:
+                x=x.left
+            else:
+                x=x.right
 
-    def inorder_tree-walk(x):
-        pass
+        if y==None:
+            self.root=z
+        elif z.value<y.value:
+            y.left=z
+        else:
+            y.right=z
+
+
+
 def create_graph(G, node, pos={}, x=0, y=0, layer=1):
     pos[node.value] = (x, y)
 
@@ -68,7 +62,12 @@ def draw(node):   # 以某个节点为根画图
 
 
 if __name__ == '__main__':
-    l=[40,20,30,50,13,23]
-    tree=BinaryTree(l)
-    tree.insert(*l)
+    list_=[10,7,11,13,43,12,26,24,1,0,18,5]
+    tree=BinaryTree()
+
+    for x in list_:
+        tree.insert(Node(x))
+ 
     draw(tree.root)
+
+ 
