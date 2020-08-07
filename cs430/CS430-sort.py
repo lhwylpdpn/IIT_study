@@ -170,26 +170,50 @@ class bubble_sort:
 
 
 
+# def countingsort2(A): # 不通，猥代码
+# 	k=max(A)
+# 	C=[0]*k
+# 	res=[-1]*len(A)
+# 	for i in range(0,k):
+# 		C[A[i]]+=1
+#  	for i in range(0,k):
+# 		C[i]=C[i]+C[i-1]
+# 	for i in range(len(A)-1,-1,-1):
+# 		print(i,A,A[i],C,res)
+# 		res[C[A[i]]]=A[i]
+# 		C[A[i]]=C[A[i]]
+# 	return res
 
+def countingsort(A): # 不通，猥代码
+	#print(A)
+	k=max(A)+1
+	C=[0]*k
+	res=[]
+	for i in range(0,len(A)):
+		C[A[i]]+=1
+	#print(C)
+	for i in range(0,len(C)):
+		j=0
+		while j<C[i]:
+			res.append(i)
+			j+=1
+	return res
 
 
 if __name__ == '__main__':
 
-	num=100
-	n=[]
+	num=10
+	n=[0, 1, 2, 0, 0, 4, 4, 0, 2, 2]
 	for x in range(0,num):
 		n.append(random.randint(0,x))	
 
-	print(n)
-	test(n,0)
-	print(n)
+	print(countingsort(n))
 	# start=time.time()
 	# clac=heap_sort()
 	# res=clac.heapsort(n)
 	# #print(res)
 	# print(time.time()-start)
-	
-
+ 
 
 	# n=[]
 	# for x in range(0,num):
