@@ -15,7 +15,7 @@ import sys
 # A B <> 5
 # B G <> 7
 # E G <> 3
-#from typing import List, Any
+##from typing import List, Any
 
 result_list = {}
 action_list = {}
