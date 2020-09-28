@@ -1,0 +1,7 @@
+# gXg grid. This is the initial state. 
+# The goal state is always (0, 1, 2, ..., N-1).
+# 0 represents the blank tile.
+1 5 2 3
+8 4 6 7
+0 9 10 11
+12 13 14 15

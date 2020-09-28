@@ -1,0 +1,26 @@
+# Edges and their costs
+# X Y <> c means a bidirectional edge between X and Y with a cost of c
+# X Y > c means a directed edge from X to Y with a cost of c.
+# You can assume that only one type of edge exists between X and Y.
+# You can assume that only > is used. < is not used.
+F S <> 5
+S A > 2
+S C <> 6
+C E <> 4
+C D > 3
+A D > 3
+D E <> 4
+A B <> 5
+B G <> 7
+E G <> 3
+# The start and the goal state. They do not have to be S and G. They could be any of the states.
+S G
+# Heuristic function
+A 5
+B 2
+C 7
+D 5
+E 2
+F 10
+G 0
+S 8
