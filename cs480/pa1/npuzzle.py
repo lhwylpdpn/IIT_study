@@ -9,7 +9,7 @@ from search import astar_search
 import sys
 
 
-# [DFTS, DFGS, BFTS, BFGS, UCTS, UCGS, GBFTS, GBFGS, ASTS, ASGS]
+# [BFTS, BFGS, UCTS, UCGS, GBFTS, GBFGS, ASTS, ASGS]
 state_list = {}
 h={}
 global initial
@@ -38,11 +38,11 @@ def return_node_from_search(search_class,problem_) -> object:
 
 	search_class=search_class.upper()
 	res_node=None
-	if search_class=='DFTS':
-		res_node=depth_first_tree_search(problem_)
-	elif search_class=='DFGS':
-		res_node = depth_first_graph_search(problem_)
-	elif search_class=='BFTS':
+	#if search_class=='DFTS':
+	#	res_node=depth_first_tree_search(problem_)
+	#elif search_class=='DFGS':
+	#	res_node = depth_first_graph_search(problem_)
+	if search_class=='BFTS':
 		res_node = breadth_first_tree_search(problem_)
 	elif search_class=='BFGS':
 		res_node = breadth_first_graph_search(problem_)
@@ -59,7 +59,7 @@ def return_node_from_search(search_class,problem_) -> object:
 	elif search_class=='GBFGS':
 		res_node = best_first_graph_search(problem_,lambda n:sum(s != g for (s, g) in zip(n.state, goal)))
 	else:
-		print ('Parameter 2 is incorrect. Please enter one of the following parameters [DFTS, DFGS, BFTS, BFGS, UCTS, UCGS, GBFTS, GBFGS, ASTS, ASGS] ')
+		print ('Parameter 2 is incorrect. Please enter one of the following parameters [BFTS, BFGS, UCTS, UCGS, GBFTS, GBFGS, ASTS, ASGS] ')
 	return res_node
 class npuzzle(Problem):
 
@@ -90,6 +90,7 @@ class npuzzle(Problem):
 		delta = {'UP': -g, 'DOWN': g, 'LEFT': -1, 'RIGHT': 1}
 		neighbor = blank + delta[action]
 		new_state[blank], new_state[neighbor] = new_state[neighbor], new_state[blank]
+		print(new_state,self.check_solvability((new_state)))
 		return tuple(new_state)
 
 	def goal_test(self, state):
@@ -102,6 +103,15 @@ class npuzzle(Problem):
 
 		return sum(s != g for (s, g) in zip(node.state, self.goal))
 
+	def check_solvability(self, state):
+
+		inversion = 0
+		for i in range(len(state)):
+			for j in range(i + 1, len(state)):
+				if (state[i] > state[j]) and state[i] != 0 and state[j] != 0:
+					inversion += 1
+
+		return inversion % 2 == 0
 
 if __name__ == '__main__':
 	input_file = sys.argv[1]
@@ -109,7 +119,8 @@ if __name__ == '__main__':
 	# # TODO implement
 	file_read(input_file)
 	goal_node =return_node_from_search(str(search_algo_str),npuzzle(initial, goal)) # TODO call the appropriate search function with appropriate parameters
-	#
+
+
 	# # Do not change the code below.
 	#
 	if goal_node is not None:
