@@ -6,10 +6,11 @@ from search import depth_first_tree_search
 from search import best_first_graph_search
 from search import uniform_cost_search
 from search import astar_search
+from search import depth_limited_search
 import sys
 
 
-# [BFTS, BFGS, UCTS, UCGS, GBFTS, GBFGS, ASTS, ASGS]
+#  [DFTS,DFGS,BFTS, BFGS, UCTS, UCGS, GBFTS, GBFGS, ASTS, ASGS]
 state_list = {}
 h={}
 global initial
@@ -38,11 +39,13 @@ def return_node_from_search(search_class,problem_) -> object:
 
 	search_class=search_class.upper()
 	res_node=None
-	#if search_class=='DFTS':
-	#	res_node=depth_first_tree_search(problem_)
-	#elif search_class=='DFGS':
-	#	res_node = depth_first_graph_search(problem_)
-	if search_class=='BFTS':
+	if search_class=='DFTS': 
+		print(" Because some states DFS will loop infinitely, so that use IDFS ")
+		res_node=depth_limited_search(problem_)
+	elif search_class=='DFGS':
+		print(" Because some states DFS will loop infinitely, so that use IDFS ")
+		res_node = depth_limited_search(problem_)
+	elif search_class=='BFTS':
 		res_node = breadth_first_tree_search(problem_)
 	elif search_class=='BFGS':
 		res_node = breadth_first_graph_search(problem_)
@@ -59,12 +62,13 @@ def return_node_from_search(search_class,problem_) -> object:
 	elif search_class=='GBFGS':
 		res_node = best_first_graph_search(problem_,lambda n:sum(s != g for (s, g) in zip(n.state, goal)))
 	else:
-		print ('Parameter 2 is incorrect. Please enter one of the following parameters [BFTS, BFGS, UCTS, UCGS, GBFTS, GBFGS, ASTS, ASGS] ')
+		print ('Parameter 2 is incorrect. Please enter one of the following parameters [DFTS,DFGS,BFTS, BFGS, UCTS, UCGS, GBFTS, GBFGS, ASTS, ASGS] ')
 	return res_node
 class npuzzle(Problem):
 
 	def __init__(self, initial, goal):
 		super().__init__(initial,goal)
+
 
 	def find_blank_square(self, state):
 
@@ -72,6 +76,7 @@ class npuzzle(Problem):
 	def actions(self, state):
 		global g
 		possible_actions = ['UP', 'DOWN', 'LEFT', 'RIGHT']
+		
 		index_blank_square = self.find_blank_square(state)
 		if index_blank_square % g == 0:
 			possible_actions.remove('LEFT')
@@ -81,7 +86,6 @@ class npuzzle(Problem):
 			possible_actions.remove('RIGHT')
 		if index_blank_square > g*(g-1)-1:
 			possible_actions.remove('DOWN')
-
 		return tuple(possible_actions)
 	def result(self, state, action):
 		global g
@@ -90,7 +94,6 @@ class npuzzle(Problem):
 		delta = {'UP': -g, 'DOWN': g, 'LEFT': -1, 'RIGHT': 1}
 		neighbor = blank + delta[action]
 		new_state[blank], new_state[neighbor] = new_state[neighbor], new_state[blank]
-		print(new_state,self.check_solvability((new_state)))
 		return tuple(new_state)
 
 	def goal_test(self, state):
@@ -110,7 +113,6 @@ class npuzzle(Problem):
 			for j in range(i + 1, len(state)):
 				if (state[i] > state[j]) and state[i] != 0 and state[j] != 0:
 					inversion += 1
-
 		return inversion % 2 == 0
 
 if __name__ == '__main__':
@@ -118,13 +120,17 @@ if __name__ == '__main__':
 	search_algo_str = sys.argv[2]
 	# # TODO implement
 	file_read(input_file)
-	goal_node =return_node_from_search(str(search_algo_str),npuzzle(initial, goal)) # TODO call the appropriate search function with appropriate parameters
+	p=npuzzle(initial, goal)
+	if p.check_solvability(initial):
+		goal_node =return_node_from_search(str(search_algo_str),p) # TODO call the appropriate search function with appropriate parameters
 
 
-	# # Do not change the code below.
-	#
-	if goal_node is not None:
-	 	print("Solution path", goal_node.solution())
-	 	print("Solution cost", goal_node.path_cost)
+		# # Do not change the code below.
+		#
+		if goal_node is not None:
+		 	print("Solution path", goal_node.solution())
+		 	print("Solution cost", goal_node.path_cost)
+		else:
+		 	print("No solution was found.")
 	else:
-	 	print("No solution was found.")
+		print("No solution was found.")

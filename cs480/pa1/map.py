@@ -9,7 +9,7 @@ from search import astar_search
 import sys
 
 
-# [DFTS, DFGS, BFTS, BFGS, UCTS, UCGS, GBFTS, GBFGS, ASTS, ASGS]
+# [DFTS 1, DFGS 1 , BFTS 1 , BFGS 1 , UCTS？, UCGS 1 , GBFTS ？, GBFGS 1, ASTS ？, ASGS 1]
 state_list = {}
 h={}
 global initial
