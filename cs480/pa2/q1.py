@@ -1,6 +1,6 @@
 import sys
 from collections import namedtuple
-from typing import Dict, Tuple
+from games import minmax_decision,alpha_beta_search,TicTacToe
 
 GameState = namedtuple('GameState', 'to_move, utility, board, moves')
 
@@ -16,13 +16,28 @@ def file_read(filename):
             for j in range(0, len(r)):
                 board[i+1, j+1] = r[j].upper()
             i += 1
-    initial=GameState(to_move='', utility=0, board=board, moves='')
-    return initial
+    return board
+def set_initial(_board):
+    h,v=0,0
+    res = {"X": 0, "O": 0}
+    for k in _board.keys():
+        h = k[0] if k[0] > h else h
+        v = k[1] if k[1] > v else v
+    moves = [(x, y) for x in range(1, h + 1) for y in range(1, v + 1)]
+    for k in _board.keys():
+        if _board[k].upper() == 'X' or _board[k].upper() == 'O':
+            moves.remove(k)
+    for p in _board.values():
+        if p.upper() == "X":
+            res['X'] += 1
+        if p.upper() == "O":
+            res['O'] += 1
+    return GameState(to_move='O' if res["X"] > res["O"] else 'X', utility=0, board=_board, moves=moves)
 
 
-class game_problem():
+class game_problem(TicTacToe):
 
-    def __init__(self, _players, initial_state):
+    def __init__(self, initial_state):
         self.h=0
         self.v=0
         self.k=0
@@ -30,150 +45,31 @@ class game_problem():
             self.h=k[0] if k[0]>self.h else self.h
             self.v = k[1] if k[1] > self.v else self.v
         self.k = max(self.h,self.v)
-        self.players = [r for r in _players]
-        moves = [(x, y) for x in range(1, self.h + 1) for y in range(1, self.v + 1)]
 
-        for k in initial_state.board.keys():
-
-            if initial_state.board[k].upper()=='X' or initial_state.board[k].upper()=='O':
-                moves.remove(k)
-
-        self.initial = GameState(to_move=self.to_move(initial_state), utility=0, board=initial_state.board, moves=moves)
-
-
-
-    def to_move(self, state):
-        res = {"X": 0, "O": 0}
-        for p in state.board.values():
-            if p.upper() == "X":
-                res['X'] += 1
-            if p.upper() == "O":
-                res['O'] += 1
-        return 'X' if res["X"] >= res["O"] else 'O'
-
-    def actions(self, state):
-
-        return state.moves
-
-    def result(self, state, move):
-        if move not in state.moves:
-            return state  # Illegal move has no effect
-        board = state.board.copy()
-        board[move] = state.to_move
-        moves = list(state.moves)
-        moves.remove(move)
-        return GameState(to_move=('O' if state.to_move == 'X' else 'X'),
-                         utility=self.compute_utility(board, move, state.to_move),
-                         board=board, moves=moves)
-
-    def utility(self, state, player):
-        return state.utility if player == 'X' else -state.utility
-
-    def Terminal_test(self, state):
-        return state.utility != 0 or len(state.moves) == 0
-
-    def compute_utility(self, board, move, player):
-
-        if (self.k_in_row(board, move, player, (0, 1)) or
-                self.k_in_row(board, move, player, (1, 0)) or
-                self.k_in_row(board, move, player, (1, -1)) or
-                self.k_in_row(board, move, player, (1, 1))):
-            return +1 if player == 'X' else -1
-        else:
-            return 0
-
-    def display(self, state):
-        board = state.board
-        for x in range(1, self.h + 1):
-            for y in range(1, self.v + 1):
-                print(board.get((x, y), '.'), end=' ')
-            print()
-
-    def k_in_row(self, board, move, player, delta_x_y):
-        (delta_x, delta_y) = delta_x_y
-        x, y = move
-        n = 0
-        while board.get((x, y)) == player:
-            n += 1
-            x, y = x + delta_x, y + delta_y
-        x, y = move
-        while board.get((x, y)) == player:
-            n += 1
-            x, y = x - delta_x, y - delta_y
-        n -= 1
-        return n >= self.k
-
-
-def alpha_beta_search(state, game):
-    player = game.to_move(state)
-
-    # Functions used by alpha_beta
-    def max_value(state, alpha, beta):
+        self.initial = initial_state
+def run(state_,game):
+    state=state_
+    while True:
+        move = alpha_beta_search(state, game)
+        state = game.result(state, move)
         if game.terminal_test(state):
-            return game.utility(state, player)
-        v = -np.inf
-        for a in game.actions(state):
-            v = max(v, min_value(game.result(state, a), alpha, beta))
-            if v >= beta:
-                return v
-            alpha = max(alpha, v)
-        return v
-
-    def min_value(state, alpha, beta):
-        if game.terminal_test(state):
-            return game.utility(state, player)
-        v = np.inf
-        for a in game.actions(state):
-            v = min(v, max_value(game.result(state, a), alpha, beta))
-            if v <= alpha:
-                return v
-            beta = min(beta, v)
-        return v
-
-    # Body of alpha_beta_search:
-    best_score = -np.inf
-    beta = np.inf
-    best_action = None
-    for a in game.actions(state):
-        v = min_value(game.result(state, a), best_score, beta)
-        if v > best_score:
-            best_score = v
-            best_action = a
-    return best_action
-
-
-def minmax_decision(state, game):
-    player = game.to_move(state)
-
-    def max_value(state):
-        if game.terminal_test(state):
-            return game.utility(state, player)
-        v = -np.inf
-        for a in game.actions(state):
-            v = max(v, min_value(game.result(state, a)))
-        return v
-
-    def min_value(state):
-        if game.terminal_test(state):
-            return game.utility(state, player)
-        v = np.inf
-        for a in game.actions(state):
-            v = min(v, max_value(game.result(state, a)))
-        return v
-
-    return max(game.actions(state), key=lambda a: min_value(game.result(state, a)))
-
+            return game.utility(state,'X')
 
 if __name__ == '__main__':
     input_file = sys.argv[1]
     # TODO implement
-    initial=file_read(input_file)
-    game = game_problem(['X', 'O'],initial)
-    #print(minmax_decision(initial,game))
+    initial = set_initial(file_read(input_file))
+    game = game_problem(initial)
 
     print('Whose turn is it in this state?')
     print(game.to_move(initial))
     # TODO: print either X or O
-    print(
-        'If both X and O play optimally from this state, does X have a guaranteed win, guaranteed loss, or guaranteed draw')
+    print('If both X and O play optimally from this state, does X have a guaranteed win, guaranteed loss, or guaranteed draw')
+    res=run(initial,game)
+    if str(res)=='-1':
+        print('loss')
+    if str(res)=='0':
+        print('draw')
+    if str(res)=='1':
+        print('win')
 # TODO: print one of win, loss, draw
