@@ -72,4 +72,4 @@ if __name__ == '__main__':
         print('draw')
     if str(res)=='1':
         print('win')
-# TODO: print one of win, loss, draw
+    # TODO: print one of win, loss, draw
