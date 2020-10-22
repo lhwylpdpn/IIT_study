@@ -3,11 +3,16 @@ import sys
 from collections import namedtuple
 from games import TicTacToe
 GameState = namedtuple('GameState', 'to_move, utility, board, moves')
-
+import time 
 global s_
 s_=[]
 global non_s_
+global utility_
+global non_utility_
+utility_={}
+non_utility_={}
 non_s_=[]
+
 def file_read(filename):
     board: Dict[Tuple[int, int], str] = {}
     i = 0
@@ -51,62 +56,56 @@ class game_problem(TicTacToe):
 def minmax_decision_update(state, game):
     non_s_.append(state)
     player = game.to_move(state)
-
+    
     def max_value(state):
 
         if game.terminal_test(state):
             s_.append(state)
-            return game.utility(state, player)
+            utilily=game.utility(state, player)
+            utility_[utilily]= 1 if utility_.get(utilily) is None else utility_.get(utilily)+1
+            return utilily
         non_s_.append(state)
+         
         v = -float('inf')
         for a in game.actions(state):
             v = max(v, min_value(game.result(state, a)))
+        non_utility_[v]= 1 if non_utility_.get(v) is None else non_utility_.get(v)+1
         return v
 
     def min_value(state):
 
         if game.terminal_test(state):
             s_.append(state)
-            return game.utility(state, player)
+            utilily=game.utility(state, player)
+            utility_[utilily]= 1 if utility_.get(utilily) is None else utility_.get(utilily)+1
+            return utilily
         non_s_.append(state)
         v =  float('inf')
         for a in game.actions(state):
             v = min(v, max_value(game.result(state, a)))
+        non_utility_[v]= 1 if non_utility_.get(v) is None else non_utility_.get(v)+1
         return v
-    expect_utility=min_value(game.result(state, max(game.actions(state), key=lambda a: min_value(game.result(state, a)))))
-    return expect_utility if player.upper()=="X" else - expect_utility
-
+    res={}
+    for a in game.actions(state):
+        res[a]=min_value(game.result(state, a))
+    v=max(res.values())
+    non_utility_[v]= 1 if non_utility_.get(v) is None else non_utility_.get(v)+1
+    return max(res, key=res.get)
 
 
 def run(state,game):
     minmax_decision_update(state, game)
-    dict_={}
-    state_={}
-    utility_={}
-    non_dict_={}
-    non_state_={}
-    non_utility_={}
-    for state in s_:
-        dict_[str(state.board)]=1 if dict_.get(str(state.board)) is None else dict_.get(str(state.board))+1
-        state_[str(state)]=state
-    Q1=len(dict_)
-    for state in state_.keys():
-        tmp=str(state_[state].utility)
-        utility_[tmp]= 1 if utility_.get(tmp) is None else utility_.get(tmp)+1
-    Q2=utility_['1']
-    Q3=utility_['-1']
-    Q4=utility_['0']
-    for state in non_s_:
-        non_dict_[str(state.board)] = 1 if non_dict_.get(str(state.board)) is None else non_dict_.get(str(state.board)) + 1
-        non_state_[str(state)] = state
-    Q5=len(non_dict_)
-    for state in non_state_.keys():
-        tmp=str(minmax_decision_update(non_state_[state], game))
-        non_utility_[tmp]=1 if non_utility_.get(tmp) is None else non_utility_.get(tmp)+1
-    Q6 = non_utility_['1']
-    Q7 = non_utility_['-1']
-    Q8 = non_utility_['0']
+    Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8='','','','','','','',''
+    Q1=len(s_)
+    Q2=utility_.get(1) if utility_.get(1) is not None else 0
+    Q3=utility_.get(-1) if utility_.get(-1) is not None else 0
+    Q4=utility_.get(0) if utility_.get(0) is not None else 0
+    Q5=len(non_s_)
+    Q6=non_utility_.get(1) if utility_.get(1) is not None else 0
+    Q7=non_utility_.get(-1) if utility_.get(-1) is not None else 0
+    Q8=non_utility_.get(0) if utility_.get(0) is not None else 0
     return Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8
+
 if __name__ == '__main__':
 
     input_file = sys.argv[1]
