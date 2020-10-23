@@ -56,40 +56,50 @@ class game_problem(TicTacToe):
 def minmax_decision_update(state, game):
     non_s_.append(state)
     player = game.to_move(state)
-    
+    print(player)
     def max_value(state):
 
         if game.terminal_test(state):
             s_.append(state)
-            utilily=game.utility(state, player)
+
+            utilily=game.utility(state, player) if player.upper()=="X" else -game.utility(state, player)
             utility_[utilily]= 1 if utility_.get(utilily) is None else utility_.get(utilily)+1
-            return utilily
+            return game.utility(state, player)
         non_s_.append(state)
          
         v = -float('inf')
         for a in game.actions(state):
             v = max(v, min_value(game.result(state, a)))
-        non_utility_[v]= 1 if non_utility_.get(v) is None else non_utility_.get(v)+1
+        if player.upper()=='X':
+            non_utility_[v]= 1 if non_utility_.get(v) is None else non_utility_.get(v)+1
+        else:
+            non_utility_[-v]= 1 if non_utility_.get(-v) is None else non_utility_.get(-v)+1
         return v
 
     def min_value(state):
 
         if game.terminal_test(state):
             s_.append(state)
-            utilily=game.utility(state, player)
+            utilily=game.utility(state, player) if player.upper()=="X" else -game.utility(state, player)
             utility_[utilily]= 1 if utility_.get(utilily) is None else utility_.get(utilily)+1
-            return utilily
+            return game.utility(state, player)
         non_s_.append(state)
         v =  float('inf')
         for a in game.actions(state):
             v = min(v, max_value(game.result(state, a)))
-        non_utility_[v]= 1 if non_utility_.get(v) is None else non_utility_.get(v)+1
+        if player.upper()=='X':
+            non_utility_[v]= 1 if non_utility_.get(v) is None else non_utility_.get(v)+1
+        else:
+            non_utility_[-v]= 1 if non_utility_.get(-v) is None else non_utility_.get(-v)+1
         return v
     res={}
     for a in game.actions(state):
         res[a]=min_value(game.result(state, a))
     v=max(res.values())
-    non_utility_[v]= 1 if non_utility_.get(v) is None else non_utility_.get(v)+1
+    if player.upper()=='X':
+            non_utility_[v]= 1 if non_utility_.get(v) is None else non_utility_.get(v)+1
+    else:
+            non_utility_[-v]= 1 if non_utility_.get(-v) is None else non_utility_.get(-v)+1
     return max(res, key=res.get)
 
 
@@ -101,9 +111,10 @@ def run(state,game):
     Q3=utility_.get(-1) if utility_.get(-1) is not None else 0
     Q4=utility_.get(0) if utility_.get(0) is not None else 0
     Q5=len(non_s_)
-    Q6=non_utility_.get(1) if utility_.get(1) is not None else 0
-    Q7=non_utility_.get(-1) if utility_.get(-1) is not None else 0
-    Q8=non_utility_.get(0) if utility_.get(0) is not None else 0
+    print(non_utility_)
+    Q6=non_utility_.get(1) if non_utility_.get(1) is not None else 0
+    Q7=non_utility_.get(-1) if non_utility_.get(-1) is not None else 0
+    Q8=non_utility_.get(0) if non_utility_.get(0) is not None else 0
     return Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8
 
 if __name__ == '__main__':
