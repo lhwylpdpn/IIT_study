@@ -37,12 +37,41 @@ def file_read(filename):
 			if 'x' not in tmp:
 				print("There is not have x in size,this code can not get the broad's x and y ")
 				return
-			broad_X=tmp.split('x')[0]
-			broad_Y=tmp.split('x')[1]
+			broad_X=int(tmp.split('x')[0])
+			broad_Y=int(tmp.split('x')[1])
 		if tag==2:
 			Additional_info.append(r.replace('\n', '').upper())
 		if tag==3:
 			Query_Sentences.append(r.replace('\n', '').upper())
+def base_kb():
+	init_KB=[]
+	for x in range(0,broad_X):
+		for y in range(0,broad_Y):
+			_M=[]
+			_B=[]
+			if x > 0:
+
+				_M.append("M" + str(x - 1) + str(y))
+				_B.append("B" + str(x - 1) + str(y))
+			if x + 1 < broad_X:
+
+				_M.append("M" + str(x + 1) + str(y))
+				_B.append("B" + str(x + 1) + str(y))
+			if y > 0:
+
+				_M.append("M" + str(x) + str(y-1))
+				_B.append("B" + str(x) + str(y-1))
+
+			if y + 1 < broad_Y:
+
+				_M.append("M" + str(x) + str(y + 1))
+				_B.append("B" + str(x) + str(y + 1))
+
+			init_KB.append('B'+str(x)+str(y)+'==>'+'|'.join(_M))
+			init_KB.append('M' + str(x) + str(y) + '==>' + '&'.join(_B))
+	return init_KB
+
+
 
 
 if __name__ == '__main__':
@@ -50,11 +79,16 @@ if __name__ == '__main__':
 	input_file = sys.argv[1]
 	file_read(input_file)
 	KB=PropKB()
+	init_clauses=base_kb()
+	print(init_clauses)
+	for S in init_clauses:
+		KB.tell(S)
+	#KB.tell('M20')
 	for S in Additional_info:
 		KB.tell(S)
-	print('all',broad_X,broad_Y,Additional_info,Query_Sentences)
+	#KB.tell("B00<=>M10|M01")
 	#for S in Query_Sentences:
-		#KB.ask_if_true(Expr(S))
-	print('Yes' if KB.ask_if_true(Expr('M20')) else 'No')
-	#print(type(Expr('~','M01')))
+	#	KB.ask_if_true(Expr(S))
+		#print('Yes' if KB.ask_if_true(Expr('B21')) else 'No')
+	print('Yes' if KB.ask_if_true(Expr('&',Expr('B11'),Expr('B22'))) else 'No')
 
