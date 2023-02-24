@@ -299,7 +299,7 @@ class DictGameNode(GameNode):
             util = DictGameNode._terminal_nodes[self.board]
             if util == 1:
                 return 'X'
-            elif util == -1:
+            elif util == 0:
                 return 'O'
             else:
                 return None
@@ -315,6 +315,6 @@ class DictGameNode(GameNode):
             if p == 'X':
                 return DictGameNode._terminal_nodes[self.board]
             else:
-                return -1*DictGameNode._terminal_nodes[self.board]
+                return 1-DictGameNode._terminal_nodes[self.board]
         else:
             return None
